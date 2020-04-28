@@ -20,10 +20,22 @@ class App extends React.Component {
   unsubscribeFromAuth = null
   componentDidMount() {
     
-    this.unsubscribeFromAuth= auth.onAuthStateChanged( async user=> {
-      createUserProfileDocument(user)
-
-      console.log(user)
+    this.unsubscribeFromAuth= auth.onAuthStateChanged( async userAuth=> {
+     if(userAuth){
+       const userRef = await createUserProfileDocument(userAuth)
+      
+       userRef.onSnapshot(snapShot => { 
+         this.setState({            //here we need to combine the the data and id because id is not inside the data().
+           currentUser: {
+             id: snapShot.id,
+             ...snapShot.data()
+           }
+         })       //, ()=>{console.log(this.state)} add this code for consol logging a async function.
+         console.log(this.state)
+        })
+      
+     }
+     this.setState({currentUser: userAuth})
     })
   }
   componentWillUnmount() {
